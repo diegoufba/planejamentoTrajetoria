@@ -84,7 +84,7 @@ def run_robot(robot):
         
         print(f"Front reading: {front_distance}, Left reading: {left_distance}")
         
-        erro = left_distance/1000 - 0.97 #Quero que sempre se mantenha a 940 de proximidade da parede
+        erro = left_distance/1000 - 0.97 #Quero que sempre se mantenha a 970 de proximidade da parede
 
         #print(f"----DISTANCES - Front: {front_distance} Left: {left_distance}----")
 
