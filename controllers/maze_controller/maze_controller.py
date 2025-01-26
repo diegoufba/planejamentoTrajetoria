@@ -53,9 +53,6 @@ def run_robot(robot):
     s05_front.enable(time_step)
     s06_front = robot.getDevice("so6")
     s06_front.enable(time_step)
-    
-    #s04_front2 = robot.getDevice("so4")
-    #s04_front2.enable(time_step)  
 
     # Initialize GPS
     gps = robot.getDevice("gps")
