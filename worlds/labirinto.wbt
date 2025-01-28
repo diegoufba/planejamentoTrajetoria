@@ -9,8 +9,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 WorldInfo {
 }
 Viewpoint {
-  orientation 0.12861536241153246 0.9726729706764977 -0.19330126918131516 1.2002054178076302
-  position -9.984956902762017 3.7644202760190772 4.5174139902297155
+  orientation 0.061737535919600975 0.11824866010174878 -0.9910629299104659 0.9703842365129185
+  position -11.10917937074264 7.271536099922235 1.4438012062296548
 }
 TexturedBackground {
 }
@@ -221,7 +221,7 @@ Group {
   ]
 }
 DEF pioneer Pioneer3at {
-  translation -8.22382 3.66397 0.10393
+  translation -8.22382 3.66397 0
   rotation 0 0 1 -1.5707953071795862
   name "Pioneer 3-AT(1)"
   controller "maze_controller_new"
