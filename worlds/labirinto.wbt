@@ -9,8 +9,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.5845473568089331 0.5525569185072879 0.5941256091580467 2.1180953085061813
-  position -4.4906134940861415 0.9697783422123327 35.899854676420105
+  orientation 0.12861536241153246 0.9726729706764977 -0.19330126918131516 1.2002054178076302
+  position -9.984956902762017 3.7644202760190772 4.5174139902297155
 }
 TexturedBackground {
 }
@@ -230,9 +230,6 @@ DEF pioneer Pioneer3at {
   ]
   extensionSlot [
     Compass {
-      lookupTable [
-        90 90 0
-      ]
       zAxis FALSE
     }
     GPS {

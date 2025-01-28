@@ -22,6 +22,27 @@ def is_circle_touching_line(cx, cy, radius, a, b):
     # Fórmula da distância de um ponto (cx, cy) à reta y = ax + b
     distance = abs(a * cx - cy + b) / math.sqrt(a**2 + 1)
     return distance <= radius
+    
+def calcular_heading(Hx, Hy):
+    heading_rad = math.atan2(-Hy, Hx)  # Calcula o ângulo em radianos
+    heading_deg = math.degrees(heading_rad)  # Converte para graus
+    heading_deg = (heading_deg + 360) % 360  # Normaliza para [0, 360]
+    return heading_deg
+    
+def calcular_heading_reta(a):
+    """
+    Calcula o heading (ângulo em relação ao norte) para uma reta y = ax + b.
+    
+    Parâmetros:
+    a (float): Coeficiente angular da reta.
+    
+    Retorna:
+    float: Heading em graus no intervalo [0, 360].
+    """
+    theta_x = np.degrees(np.arctan(a))  # Inclinação em relação ao eixo X
+    heading = 270 + theta_x  # Conversão para referência ao norte
+    heading = (heading + 360) % 360 # Normaliza para [0, 360]
+    return heading
 
 def rotate_90(front_left_wheel, front_right_wheel, back_left_wheel, back_right_wheel, robot) :
     front_left_wheel.setVelocity(max_speed*4)
@@ -76,6 +97,7 @@ def run_robot(robot):
     gps = robot.getDevice("gps")
     gps.enable(time_step)
     
+    # Initialize Compass
     compass = robot.getDevice("compass")
     compass.enable(time_step)
     
@@ -88,17 +110,21 @@ def run_robot(robot):
     kd_PD = 0.5
     kp_PD = 0.5
     
+    #Obs: Q_START fixado somente para vizualizar a reta m_line no mapa, para que seja variante ao start basta dispor x_start e y_start como  position = gps.getValues(), x = position[0], y = position[1]
     # Posições de partida e chegada
     x_start, y_start = -8.223819998184288, 3.6639342262967203  # Ponto de partida
     x_goal, y_goal = 8.546180001815712, -4.35606577370328      # Ponto de chegada
     
     # Calcula os coeficientes da reta
-    a, b = calculate_line_coefficients(x_start, y_start, x_goal, y_goal)
+    a, b = calculate_line_coefficients(x_start, y_start, x_goal, y_goal) #Bug 2, m_line (calculada uma vez)
     
     # Considerando o robo como um circulo de raio 0,5
     r = 0.4
     
     i = 0
+    
+    heading_reta = calcular_heading_reta(a)
+    print(heading_reta)
     # Step simulation
     while robot.step(time_step) != -1:
     
@@ -174,7 +200,10 @@ def run_robot(robot):
         #print("X:", pos[0], " Y:", pos[1], " Z:", pos[2])
         
         angle = compass.getValues()
-        #print(angle)
+        print(angle)
+        
+        heading = calcular_heading(angle[0], angle[1])
+        print(heading)
                 
 
 if __name__ == "__main__":
