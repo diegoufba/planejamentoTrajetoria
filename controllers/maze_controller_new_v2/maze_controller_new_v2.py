@@ -9,8 +9,8 @@ dregrees_per_step_at_max_speed = 0.7
 
 #Obs: Q_START fixado somente para vizualizar a reta m_line no mapa, para que seja variante ao start basta dispor x_start e y_start como  position = gps.getValues(), x = position[0], y = position[1]
 # Posições de partida e chegada
-x_start, y_start = -8.223819998184288, 3.6639342262967203  # Ponto de partida
-x_goal, y_goal = 8.546180001815712, -4.35606577370328      # Ponto de chegada
+x_start, y_start = -8.22095, 3.36075  # Ponto de partida
+x_goal, y_goal = 8.53618, -3.47603  # Ponto de chegada
 
 def calculate_line_coefficients(x1, y1, x2, y2):
     """
@@ -50,7 +50,7 @@ def calcular_heading_reta(a):
     heading = (heading + 360) % 360 # Normaliza para [0, 360]
     return heading
     
-def alinhar_com_reta(heading_reta, heading_robo, front_left_wheel, front_right_wheel, back_left_wheel, back_right_wheel, robot):
+def alinhar_com_reta(heading_reta, heading_robo, front_left_wheel, front_right_wheel, back_left_wheel, back_right_wheel, robot, s01_front, s02_front, s03_front, s04_front, s05_front, s06_front):
     turn = heading_robo - heading_reta
     
     turn_direction = 1 if turn >= 0 else -1 #Vira para direita se + e esquerda se - 
@@ -65,14 +65,27 @@ def alinhar_com_reta(heading_reta, heading_robo, front_left_wheel, front_right_w
         front_right_wheel.setVelocity(-max_speed)
         back_left_wheel.setVelocity(max_speed)
         back_right_wheel.setVelocity(-max_speed)
-        robot.step(time_step * complete_steps)
+        
+        for i in range(complete_steps):
+            front_distance = max(s01_front.getValue(), s02_front.getValue(), s03_front.getValue(), s04_front.getValue(), s05_front.getValue(), s06_front.getValue())
+            if front_distance > 970:
+                return False
+            else:
+                robot.step(time_step)
+                
     else: #Virar para a esquerda
         front_left_wheel.setVelocity(-max_speed)
         front_right_wheel.setVelocity(max_speed)
         back_left_wheel.setVelocity(-max_speed)
         back_right_wheel.setVelocity(max_speed)
-        robot.step(time_step * complete_steps)
-   
+        
+        for i in range(complete_steps):
+            front_distance = max(s01_front.getValue(), s02_front.getValue(), s03_front.getValue(), s04_front.getValue(), s05_front.getValue(), s06_front.getValue())
+            if front_distance > 970:
+                return False
+            else:
+                robot.step(time_step)        
+                
     #PARTIAL STEP   
     if turn_direction == 1: #Virar para direita
         front_left_wheel.setVelocity(max_speed*partial_step)
@@ -86,6 +99,8 @@ def alinhar_com_reta(heading_reta, heading_robo, front_left_wheel, front_right_w
         back_left_wheel.setVelocity(-max_speed*partial_step)
         back_right_wheel.setVelocity(max_speed*partial_step)
         robot.step(time_step * 1)
+    
+    return True
     
 def projetar_ponto_na_reta(x0, y0, a, b):
     # Calcular a coordenada x da projeção
@@ -182,7 +197,7 @@ def run_robot(robot):
     
     # Step simulation
     while robot.step(time_step) != -1:
-         
+        
         position = gps.getValues()
         x = position[0]
         y = position[1]
@@ -220,8 +235,9 @@ def run_robot(robot):
 
         left_wall = left_distance > 500
         front_wall = front_distance > 970
+       
         
-        # print(f"Front reading: {front_distance}, Left reading: {left_distance}")
+        #print(f"Front reading: {front_distance}, Left reading: {left_distance}")
         
         erro = left_distance/1000 - 0.95 #Quero que sempre se mantenha a 920 de proximidade da parede
 
@@ -229,15 +245,19 @@ def run_robot(robot):
 
         if segue_reta and not front_wall:
         
-            #print("SEGUIR RETA")
+            #print(f"SEGUIR RETA {i}")
+            #print(f"Front reading: {front_distance}, Left reading: {left_distance}")
+        
             if abs(heading - heading_reta) > 0.5:
                 #print("Alinhando com a reta")
-                alinhar_com_reta(heading_reta, heading, front_left_wheel, front_right_wheel, back_left_wheel, back_right_wheel, robot)
+                status = alinhar_com_reta(heading_reta, heading, front_left_wheel, front_right_wheel, back_left_wheel, back_right_wheel, robot, s01_front, s02_front, s03_front, s04_front, s05_front, s06_front)
             
-            #Alinhado com a reta basta seguir para frente
-            left_speed = max_speed
-            right_speed = max_speed
-
+            if status:
+                #Alinhado com a reta basta seguir para frente
+                left_speed = max_speed
+                right_speed = max_speed
+            #else:
+                #print("Impossivel alinhar, seguindo parede")
         else:
             
             #print("Para de seguir reta, obstáculo")
