@@ -217,13 +217,13 @@ def run_robot(robot):
         
         left_distance = s0_left.getValue() if s0_left.getValue()> 0.0 else s15_left2.getValue()
         front_distance = max(s01_front.getValue(), s02_front.getValue(), s03_front.getValue(), s04_front.getValue(), s05_front.getValue(), s06_front.getValue())
-
+    
         left_wall = left_distance > 500
         front_wall = front_distance > 970
         
-        # print(f"Front reading: {front_distance}, Left reading: {left_distance}")
+        if segue_reta:
         
-        erro = left_distance/1000 - 0.95 #Quero que sempre se mantenha a 920 de proximidade da parede
+            erro = left_distance/1000 - 0.95 #Quero que sempre se mantenha a 920 de proximidade da parede
 
         #print(f"----DISTANCES - Front: {front_distance} Left: {left_distance}----")
 
