@@ -10,7 +10,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation 0.5103407250303109 0.5041817374736703 -0.6966728930951509 1.9360588803166745
-  position -3.497247420522876 9.291803059914931 24.087727364770103
+  position -6.77502485066705 4.369346216122531 6.6961148300575
 }
 TexturedBackground {
 }
@@ -221,10 +221,10 @@ Group {
   ]
 }
 DEF pioneer Pioneer3at {
-  translation -8.22382 3.66397 0.10393
+  translation -8.21382 3.66397 0.10393
   rotation 0 0 1 -1.5707953071795862
   name "Pioneer 3-AT(1)"
-  controller "maze_controller_new"
+  controller "maze_controller_new_v2"
   controllerArgs [
     ""
   ]
