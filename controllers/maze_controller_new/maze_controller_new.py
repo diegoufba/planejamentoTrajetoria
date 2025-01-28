@@ -124,7 +124,8 @@ def run_robot(robot):
     i = 0
     
     heading_reta = calcular_heading_reta(a)
-    print(heading_reta)
+    
+    # print(heading_reta)
     # Step simulation
     while robot.step(time_step) != -1:
     
@@ -132,78 +133,104 @@ def run_robot(robot):
         x = position[0]
         y = position[1]
         
+        segue_reta = False
         # Verifica se o círculo(robo) toca a reta
         if is_circle_touching_line(x, y, r, a, b):
             i = i + 1
             print(f"O robo toca a reta.({i})")
-
+            segue_reta = True
+        
+        angle = compass.getValues()
+        # print(angle)
+        
+        heading = calcular_heading(angle[0], angle[1])
+        # print(heading)
+            
+        # Calcula a diferença entre o ângulo do robô e o ângulo da reta
+        angle_difference = heading - heading_reta
+        print(angle_difference)
+        
+        # segue_reta = False
+        
         left_distance = s0_left.getValue() if s0_left.getValue()> 0.0 else s15_left2.getValue()
         front_distance = max(s01_front.getValue(), s02_front.getValue(), s03_front.getValue(), s04_front.getValue(), s05_front.getValue(), s06_front.getValue())
-
+    
         left_wall = left_distance > 500
         front_wall = front_distance > 980
         
-        # print(f"Front reading: {front_distance}, Left reading: {left_distance}")
+        if segue_reta:
         
-        erro = left_distance/1000 - 0.97 #Quero que sempre se mantenha a 970 de proximidade da parede
-
-        #print(f"----DISTANCES - Front: {front_distance} Left: {left_distance}----")
-
-        if front_wall: #Turn right
-            # print("---------------------Turning right---------------------")   
-            rotate_90(front_left_wheel, front_right_wheel, back_left_wheel, back_right_wheel, robot)
-        
-        else:
-            
-            if left_wall: #Follow the wall
-                # print("Follow the wall")
-                
-                #Movimento de ir pra frente guiado pelo controller
-                #Controla o erro quando não realiza outros movimentos
-                
-                #PD
-                derivada_erro = (erro - erro_anterior)/time_step
-                controle = erro*kp_PD + derivada_erro*kd_PD
-            
-                if controle > 0.01: #Se erro maior que zero precisa ajustar para a direita, está muito proximo da parede
+            # Se a diferença angular for maior que um limiar, gira o robô
+            if abs(angle_difference) > 5:  # Limiar de tolerância (em graus)
+                if angle_difference > 0:
+                    # Gira no sentido horário
                     left_speed = max_speed
-                    right_speed = max_speed*controle
-                    # print("--Muito proximo da parede")
-                elif controle < -0.01: #Se erro menor que zero precisa ajustar para a esquerda, está muito distante da parede
-                    left_speed = max_speed*controle
-                    right_speed = max_speed
-                    # print("--Muito distante da parede")
+                    right_speed = -max_speed
                 else:
-                    left_speed = max_speed
+                    # Gira no sentido anti-horário
+                    left_speed = -max_speed
                     right_speed = max_speed
-                    # print("--Distância correta")
-
-                #print(f"Left distance: {left_distance} Erro: {erro} Erro P: {erro*kp_PD} Erro D: {derivada_erro*kd_PD}")
-                #print(f"New left speed: {left_speed} New right speed: {right_speed}")
-
-                erro_anterior = erro   
-                
-            else: #Passed left wall
-                # print("Turn Left")
-                left_speed = max_speed/8
+            else:
+                # Alinhado, segue em frente
+                left_speed = max_speed
                 right_speed = max_speed
+        else:
+        
 
+
+            
+            # print(f"Front reading: {front_distance}, Left reading: {left_distance}")
+            
+            erro = left_distance/1000 - 0.97 #Quero que sempre se mantenha a 970 de proximidade da parede
+    
+            #print(f"----DISTANCES - Front: {front_distance} Left: {left_distance}----")
+    
+            if front_wall: #Turn right
+                # print("---------------------Turning right---------------------")   
+                rotate_90(front_left_wheel, front_right_wheel, back_left_wheel, back_right_wheel, robot)
+            
+            else:
+                
+                if left_wall: #Follow the wall
+                    # print("Follow the wall")
+                    
+                    #Movimento de ir pra frente guiado pelo controller
+                    #Controla o erro quando não realiza outros movimentos
+                    
+                    #PD
+                    derivada_erro = (erro - erro_anterior)/time_step
+                    controle = erro*kp_PD + derivada_erro*kd_PD
+                
+                    if controle > 0.01: #Se erro maior que zero precisa ajustar para a direita, está muito proximo da parede
+                        left_speed = max_speed
+                        right_speed = max_speed*controle
+                        # print("--Muito proximo da parede")
+                    elif controle < -0.01: #Se erro menor que zero precisa ajustar para a esquerda, está muito distante da parede
+                        left_speed = max_speed*controle
+                        right_speed = max_speed
+                        # print("--Muito distante da parede")
+                    else:
+                        left_speed = max_speed
+                        right_speed = max_speed
+                        # print("--Distância correta")
+    
+                    #print(f"Left distance: {left_distance} Erro: {erro} Erro P: {erro*kp_PD} Erro D: {derivada_erro*kd_PD}")
+                    #print(f"New left speed: {left_speed} New right speed: {right_speed}")
+    
+                    erro_anterior = erro   
+                    
+                else: #Passed left wall
+                    # print("Turn Left")
+                    left_speed = max_speed/8
+                    right_speed = max_speed
+    
                 
         front_left_wheel.setVelocity(left_speed)
         back_left_wheel.setVelocity(left_speed)
         front_right_wheel.setVelocity(right_speed)
         back_right_wheel.setVelocity(right_speed)
         
-        pos = gps.getValues()
-        pos = [round(pos[0],2), round(pos[1],2), round(pos[2],2)]
-        #print("----- Ping position -----")
-        #print("X:", pos[0], " Y:", pos[1], " Z:", pos[2])
-        
-        angle = compass.getValues()
-        print(angle)
-        
-        heading = calcular_heading(angle[0], angle[1])
-        print(heading)
+
                 
 
 if __name__ == "__main__":
